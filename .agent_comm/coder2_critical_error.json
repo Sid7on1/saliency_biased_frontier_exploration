@@ -1,0 +1,8 @@
+{
+  "from": "coder2",
+  "to": "manager",
+  "type": "critical_error",
+  "message": "Failed to save utils/metrics.py: [Errno 2] No such file or directory: 'artifacts/projects/Saliency_Biased_Frontier_Exploration/utils/metrics.py'",
+  "details": {},
+  "timestamp": "2025-08-17T20:48:53.220915"
+}
