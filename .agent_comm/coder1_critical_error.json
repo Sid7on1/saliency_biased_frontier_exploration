@@ -1,0 +1,8 @@
+{
+  "from": "coder1",
+  "to": "manager",
+  "type": "critical_error",
+  "message": "Failed to save tests/test_saliency.py: [Errno 2] No such file or directory: 'artifacts/projects/Saliency_Biased_Frontier_Exploration/tests/test_saliency.py'",
+  "details": {},
+  "timestamp": "2025-08-17T20:49:27.989405"
+}
