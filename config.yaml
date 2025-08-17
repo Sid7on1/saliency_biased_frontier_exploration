@@ -1,0 +1,150 @@
+import yaml
+import logging
+import os
+import typing
+
+# Set up logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
+
+class ConfigManager:
+    """
+    Configuration manager for the Saliency-Biased Frontier Exploration system.
+    Provides functionality to load, validate, and access configuration parameters.
+    """
+
+    def __init__(self, config_file: str):
+        """
+        Initializes the ConfigManager.
+
+        Args:
+            config_file (str): Path to the YAML configuration file.
+        """
+        self.config_file = config_file
+        self.config = self._load_config()
+
+    def _load_config(self) -> dict:
+        """
+        Loads the configuration file and returns it as a dictionary.
+
+        Returns:
+            dict: Loaded configuration parameters.
+
+        Raises:
+            FileNotFoundError: If the configuration file is not found.
+            YAMLLoadError: If the configuration file is malformed.
+        """
+        if not os.path.isfile(self.config_file):
+            raise FileNotFoundError(f"Configuration file '{self.config_file}' not found.")
+
+        logger.info(f"Loading configuration from '{self.config_file}'")
+        with open(self.config_file, 'r') as file:
+            config = yaml.safe_load(file)
+
+        if not isinstance(config, dict):
+            raise YAMLLoadError("Configuration file is malformed. Expected a dictionary.")
+
+        return config
+
+    def validate_parameters(self) -> bool:
+        """
+        Validates the loaded configuration parameters.
+
+        Returns:
+            bool: True if validation is successful, False otherwise.
+
+        Raises:
+            ValueError: If any configuration parameter is invalid or missing.
+        """
+        try:
+            # Validate general parameters
+            if 'general' not in self.config or not isinstance(self.config['general'], dict):
+                raise ValueError("'general' section missing or invalid in configuration file.")
+            if 'strategy' not in self.config['general'] or \
+                    self.config['general']['strategy'] not in ['nearest_frontier', 'information_gain', 'perfect_information_gain']:
+                raise ValueError("Invalid or missing 'strategy' parameter in 'general' section.")
+
+            # Validate CNN parameters
+            if 'cnn' not in self.config or not isinstance(self.config['cnn'], dict):
+                raise ValueError("'cnn' section missing or invalid in configuration file.")
+            if 'threshold' not in self.config['cnn'] or not isinstance(self.config['cnn']['threshold'], float):
+                raise ValueError("Invalid or missing 'threshold' parameter in 'cnn' section.")
+
+            # Validate ROS topics
+            if 'ros' not in self.config or not isinstance(self.config['ros'], dict):
+                raise ValueError("'ros' section missing or invalid in configuration file.")
+            if 'map_topic' not in self.config['ros'] or not isinstance(self.config['ros']['map_topic'], str):
+                raise ValueError("Invalid or missing 'map_topic' parameter in 'ros' section.")
+            if 'odom_topic' not in self.config['ros'] or not isinstance(self.config['ros']['odom_topic'], str):
+                raise ValueError("Invalid or missing 'odom_topic' parameter in 'ros' section.")
+            if 'base_frame' not in self.config['ros'] or not isinstance(self.config['ros']['base_frame'], str):
+                raise ValueError("Invalid or missing 'base_frame' parameter in 'ros' section.")
+
+            # All validations passed
+            return True
+
+        except ValueError as e:
+            logger.error(f"Invalid configuration: {e}")
+            return False
+
+    def get_strategy_params(self) -> dict:
+        """
+        Gets the parameters for the selected exploration strategy.
+
+        Returns:
+            dict: Parameters for the selected strategy.
+
+        Raises:
+            ValueError: If the selected strategy is invalid or parameters are missing.
+        """
+        strategy = self.config['general']['strategy']
+        if strategy not in self.config or not isinstance(self.config[strategy], dict):
+            raise ValueError(f"Invalid or missing parameters for selected strategy '{strategy}'.")
+        return self.config[strategy]
+
+    def get_cnn_params(self) -> dict:
+        """
+        Gets the parameters for the CNN-based saliency detection.
+
+        Returns:
+            dict: Parameters for CNN-based saliency detection.
+
+        Raises:
+            ValueError: If CNN parameters are invalid or missing.
+        """
+        if 'cnn' not in self.config or not isinstance(self.config['cnn'], dict):
+            raise ValueError("'cnn' section missing or invalid in configuration file.")
+        return self.config['cnn']
+
+    def get_ros_topics(self) -> dict:
+        """
+        Gets the ROS topics and frame ID configured.
+
+        Returns:
+            dict: ROS topics and frame ID.
+
+        Raises:
+            ValueError: If ROS topics or frame ID are invalid or missing.
+        """
+        if 'ros' not in self.config or not isinstance(self.config['ros'], dict):
+            raise ValueError("'ros' section missing or invalid in configuration file.")
+        return self.config['ros']
+
+# Example usage
+if __name__ == "__main__":
+    config_file = "path/to/config.yaml"
+    config_manager = ConfigManager(config_file)
+
+    if config_manager.validate_parameters():
+        strategy_params = config_manager.get_strategy_params()
+        cnn_params = config_manager.get_cnn_params()
+        ros_topics = config_manager.get_ros_topics()
+
+        logger.info("Configuration loaded successfully:")
+        logger.info(f"Selected strategy: {strategy_params['name']}")
+        logger.info(f"CNN threshold: {cnn_params['threshold']}")
+        logger.info(f"ROS map topic: {ros_topics['map_topic']}")
+        logger.info(f"ROS odom topic: {ros_topics['odom_topic']}")
+        logger.info(f"ROS base frame: {ros_topics['base_frame']}")
+    else:
+        logger.error("Configuration validation failed. Please check the logs for details.")
