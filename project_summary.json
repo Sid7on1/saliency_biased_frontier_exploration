@@ -1,0 +1,16 @@
+{
+  "project_name": "Saliency_Biased_Frontier_Exploration",
+  "project_type": "robotics",
+  "completion_time": "2025-08-17T20:51:54.631215",
+  "total_tasks": 8,
+  "completed_tasks": 4,
+  "failed_tasks": 4,
+  "critical_errors": 0,
+  "agents_used": [
+    "coder1",
+    "coder2",
+    "coder3",
+    "coder4"
+  ],
+  "project_directory": "artifacts/projects/Saliency_Biased_Frontier_Exploration"
+}
