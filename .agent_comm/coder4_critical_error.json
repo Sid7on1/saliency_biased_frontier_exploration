@@ -1,0 +1,8 @@
+{
+  "from": "coder4",
+  "to": "manager",
+  "type": "critical_error",
+  "message": "Failed to save launch/exploration.launch: [Errno 2] No such file or directory: 'artifacts/projects/Saliency_Biased_Frontier_Exploration/launch/exploration.launch'",
+  "details": {},
+  "timestamp": "2025-08-17T20:49:22.337098"
+}
